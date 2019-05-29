@@ -8,7 +8,7 @@ Class {
 PEDRawDataFileExtractorScript class >> script [
 "This is the script to be used in order to extract data from a Pharo image of any version and write it into a text file with a specific format."
 |outputFile separatorChar separateBlock|
-outputFile := FileLocator desktop / 'p.data'.
+outputFile := FileLocator documents / 'p.data'.
 separatorChar := $!.
 separateBlock := [ :stream |
 	stream nextPut: Character lf.
