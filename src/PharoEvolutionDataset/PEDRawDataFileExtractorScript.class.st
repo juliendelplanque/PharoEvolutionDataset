@@ -1,7 +1,7 @@
 Class {
 	#name : #PEDRawDataFileExtractorScript,
 	#superclass : #Object,
-	#category : #PharoEvolutionDataset
+	#category : #'PharoEvolutionDataset-Script'
 }
 
 { #category : #accessing }
@@ -18,34 +18,34 @@ outputFile writeStreamDo: [ :s |
 	Smalltalk allClassesAndTraits do: [ :c |
 		"Instance-side"
 		s
-			nextPutAll: c name;
+			nextPutAll: c printString;
 			nextPut: separatorChar;
-			nextPutAll: c superclass name;
+			nextPutAll: c superclass printString;
 			nextPut: separatorChar;
-			nextPutAll: c instanceVariables printString;
+			nextPutAll: c instVarNames printString;
 			nextPut: separatorChar;
-			nextPutAll: (c classVariables collect: #key) printString;
+			nextPutAll: c classVarNames printString;
 			nextPut: separatorChar;
 			nextPutAll: c category.
 		separateBlock value: s.
 		c methods do: [ :m |
 			s nextPutAll: m sourceCode. ] 
 		separatedBy: [ separateBlock value: s ].
+		separateBlock value: s.
 		"Class-side"
 		s
-			nextPutAll: c class name;
+			nextPutAll: c class printString;
 			nextPut: separatorChar;
-			nextPutAll: c class superclass name;
+			nextPutAll: c class superclass printString;
 			nextPut: separatorChar;
-			nextPutAll: c class instanceVariables printString;
+			nextPutAll: c class instVarNames printString;
 			nextPut: separatorChar;
-			nextPutAll: (c class classVariables collect: #key) printString;
+			nextPutAll: c class classVarNames printString;
 			nextPut: separatorChar;
-			nextPutAll: c class category.
+			nextPutAll: c category.
+		separateBlock value: s.
 		c class methods do: [ :m |
 			s nextPutAll: m sourceCode. ] 
 		separatedBy: [ separateBlock value: s ] ] 
 	separatedBy: [ separateBlock value: s ] ].
-
-
 ]

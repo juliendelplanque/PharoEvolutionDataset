@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'databaseConnection',
 		'dataFile',
-		'lastClassInsertedId'
+		'lastClassInsertedId',
+		'pharoVersionId'
 	],
 	#category : #'PharoEvolutionDataset-Importer'
 }
@@ -39,11 +40,11 @@ PEDRawDataFileImporter >> importClassDataFromStream: stream [
 	| line splitted |
 	line := stream upTo: self newLineSeparator.
 	splitted := line splitOn: self dataSeparator.
-	self databaseConnection execute: self insertClassQuery value: splitted first value: splitted fourth.
+	self databaseConnection execute: self insertClassQuery value: splitted first value: splitted second value: splitted fifth value: self pharoVersionId.
 	lastClassInsertedId := self databaseConnection lastInsertedId.
-	((self class compiler evaluate: splitted second) ifNil: [ #() ]) do: [ :instvarName |
+	((self class compiler evaluate: splitted third) ifNil: [ #() ]) do: [ :instvarName |
 		self databaseConnection execute: self insertInstanceVariableQuery value: splitted first value: lastClassInsertedId ].
-	((self class compiler evaluate: splitted third)  ifNil: [ #() ]) do: [ :instvarName |
+	((self class compiler evaluate: splitted fourth) ifNil: [ #() ]) do: [ :instvarName |
 		self databaseConnection execute: self insertClassVariableQuery value: splitted first value: lastClassInsertedId ]
 ]
 
@@ -60,9 +61,9 @@ PEDRawDataFileImporter >> importInDatabase [
 				lastPosition := stream position.
 				lineBag := (stream upTo: self newLineSeparator) asBag.
 				exclamationMarksCount := lineBag occurrencesOf: self dataSeparator.
-				crCount := lineBag occurrencesOf: self newLineSeparator.
+				crCount := lineBag occurrencesOf: Character cr.
 				stream position: lastPosition.
-				(exclamationMarksCount = 3 and: [ crCount = 0 ])
+				(exclamationMarksCount = 4 and: [ crCount = 0 ])
 					ifTrue: [ self importClassDataFromStream: stream ]
 					ifFalse: [ 
 						(exclamationMarksCount = 80 and: [ crCount = 0 ])
@@ -74,12 +75,15 @@ PEDRawDataFileImporter >> importInDatabase [
 PEDRawDataFileImporter >> importMethodDataFromStream: stream [
 	| methodCode |
 	methodCode := stream upTo: self newLineSeparator.
+	[ stream peek = self dataSeparator or: [ stream atEnd ] ]
+		whileFalse: [ methodCode := methodCode , (stream upTo: self newLineSeparator) ].
+	methodCode = '' ifTrue: [ ^ self ].
 	self databaseConnection execute: self insertMethodQuery value: methodCode value: lastClassInsertedId.
 ]
 
 { #category : #queries }
 PEDRawDataFileImporter >> insertClassQuery [
-	^ 'INSERT INTO class(name, category, pharo_version_id) VALUES (?, ?, ?);'
+	^ 'INSERT INTO class(name, super, category, pharo_version_id) VALUES (?, ?, ?, ?);'
 ]
 
 { #category : #queries }
@@ -100,6 +104,16 @@ PEDRawDataFileImporter >> insertMethodQuery [
 { #category : #'instance creation' }
 PEDRawDataFileImporter >> newLineSeparator [
 	^ Character lf
+]
+
+{ #category : #accessing }
+PEDRawDataFileImporter >> pharoVersionId [
+	^ pharoVersionId
+]
+
+{ #category : #accessing }
+PEDRawDataFileImporter >> pharoVersionId: anObject [
+	pharoVersionId := anObject
 ]
 
 { #category : #importing }
