@@ -28,9 +28,14 @@ outputFile writeStreamDo: [ :s |
 			nextPut: separatorChar;
 			nextPutAll: c category.
 		separateBlock value: s.
-		c methods do: [ :m |
-			s nextPutAll: m sourceCode. ] 
-		separatedBy: [ separateBlock value: s ].
+		c methods size > 0
+			ifTrue: [
+				c methods 
+					do: [ :m | 
+						s
+							nextPutAll: m protocol; nextPut: Character lf;
+							nextPutAll: m sourceCode ]
+					separatedBy: [ separateBlock value: s ] ].
 		separateBlock value: s.
 		"Class-side"
 		s
@@ -44,8 +49,13 @@ outputFile writeStreamDo: [ :s |
 			nextPut: separatorChar;
 			nextPutAll: c category.
 		separateBlock value: s.
-		c class methods do: [ :m |
-			s nextPutAll: m sourceCode. ] 
-		separatedBy: [ separateBlock value: s ] ] 
+		c class methods size > 0
+			ifTrue: [
+				c class methods 
+					do: [ :m | 
+						s
+							nextPutAll: m protocol; nextPut: Character lf;
+							nextPutAll: m sourceCode ]
+					separatedBy: [ separateBlock value: s ] ] ] 
 	separatedBy: [ separateBlock value: s ] ].
 ]
