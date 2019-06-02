@@ -24,7 +24,7 @@ PEDPrecomputeCommonMethodData class >> precomputeOn: connection [
 { #category : #'schema modification' }
 PEDPrecomputeCommonMethodData >> addNewColumnsToMethodTable [
 	self connection execute: 'ALTER TABLE method ADD COLUMN selector TEXT;'.
-	self connection execute: 'ALTER TABLE method ADD COLUMN ast_dump TEXT;'.
+	self connection execute: 'ALTER TABLE method ADD COLUMN loc INTEGER;'.
 ]
 
 { #category : #adding }
@@ -32,10 +32,11 @@ PEDPrecomputeCommonMethodData >> addPrecomputedData [
 	| cursor |
 	cursor := connection execute: 'SELECT id, source_code FROM method;'.
 	[ cursor hasNext ]
-		whileTrue: [ |currentRow ast|
+		whileTrue: [ |currentRow ast lines|
 			currentRow := cursor next.
 			ast := [ RBParser parseMethod: (currentRow atColumnNamed: 'source_code') ] on: SyntaxErrorNotification do: [ nil ].
-			connection execute: 'UPDATE method SET selector = ?, ast_dump = ? WHERE id = ?;' value: (ast ifNotNil: #selector) value: (ast ifNotNil: #dump) value: (currentRow atColumnNamed: 'id') ]
+			lines := self linesOfCodeIn: (currentRow atColumnNamed: 'source_code').
+			connection execute: 'UPDATE method SET selector = ?, loc = ? WHERE id = ?;' value: (ast ifNotNil: #selector) value: lines value: (currentRow atColumnNamed: 'id') ]
 ]
 
 { #category : #accessing }
@@ -46,6 +47,15 @@ PEDPrecomputeCommonMethodData >> connection [
 { #category : #accessing }
 PEDPrecomputeCommonMethodData >> connection: anObject [
 	connection := anObject
+]
+
+{ #category : #metrics }
+PEDPrecomputeCommonMethodData >> linesOfCodeIn: sourceCode [
+	| lines |
+	lines := 0.
+	sourceCode lineIndicesDo: [:start :endWithoutDelimiters :end |
+		endWithoutDelimiters > start ifTrue: [lines := lines+1] ].
+	^ lines
 ]
 
 { #category : #precomputing }
