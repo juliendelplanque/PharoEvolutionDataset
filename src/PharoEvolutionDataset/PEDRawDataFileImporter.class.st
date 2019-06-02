@@ -10,6 +10,17 @@ Class {
 	#category : #'PharoEvolutionDataset-Importer'
 }
 
+{ #category : #importing }
+PEDRawDataFileImporter class >> import: aRawDataFileReference pharoVersion: versionString in: connection [
+	connection execute: 'INSERT INTO pharo_version(version) VALUES (?);' value: versionString.
+
+	PEDRawDataFileImporter new
+		pharoVersionId: connection lastInsertedId;
+		dataFile: aRawDataFileReference;
+		databaseConnection: connection;
+		importInDatabase.
+]
+
 { #category : #accessing }
 PEDRawDataFileImporter >> dataFile [
 	^ dataFile
