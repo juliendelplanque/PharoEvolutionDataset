@@ -64,6 +64,7 @@ PEDDatabaseCreator >> createMethodTable [
 	self databaseConnection execute: 'CREATE TABLE method(
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	source_code TEXT NOT NULL,
+	protocol TEXT NOT NULL,
 	class_id INTEGER REFERENCES class(id)
 );'.
 ]

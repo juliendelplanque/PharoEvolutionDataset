@@ -73,12 +73,13 @@ PEDRawDataFileImporter >> importInDatabase [
 
 { #category : #importing }
 PEDRawDataFileImporter >> importMethodDataFromStream: stream [
-	| methodCode |
+	| methodProtocol methodCode |
+	methodProtocol := stream upTo: self newLineSeparator.
+	methodProtocol = '' ifTrue: [ ^ self ].
 	methodCode := stream upTo: self newLineSeparator.
 	[ stream peek = self dataSeparator or: [ stream atEnd ] ]
 		whileFalse: [ methodCode := methodCode , (stream upTo: self newLineSeparator) ].
-	methodCode = '' ifTrue: [ ^ self ].
-	self databaseConnection execute: self insertMethodQuery value: methodCode value: lastClassInsertedId.
+	self databaseConnection execute: self insertMethodQuery value: methodCode value: methodProtocol value: lastClassInsertedId.
 ]
 
 { #category : #queries }
@@ -98,7 +99,7 @@ PEDRawDataFileImporter >> insertInstanceVariableQuery [
 
 { #category : #queries }
 PEDRawDataFileImporter >> insertMethodQuery [
-	^ 'INSERT INTO method(source_code, class_id) VALUES (?, ?);'
+	^ 'INSERT INTO method(source_code, protocol, class_id) VALUES (?, ?, ?);'
 ]
 
 { #category : #'instance creation' }
