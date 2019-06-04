@@ -1,25 +1,8 @@
 Class {
 	#name : #PEDPrecomputeCommonMethodData,
-	#superclass : #Object,
-	#instVars : [
-		'connection'
-	],
+	#superclass : #PEDPrecomputer,
 	#category : #'PharoEvolutionDataset-DataEnhancer'
 }
-
-{ #category : #'instance creation' }
-PEDPrecomputeCommonMethodData class >> on: connection [
-	^ self new
-		connection: connection;
-		yourself
-]
-
-{ #category : #'instance creation' }
-PEDPrecomputeCommonMethodData class >> precomputeOn: connection [
-	^ (self on: connection)
-		precompute;
-		yourself
-]
 
 { #category : #'schema modification' }
 PEDPrecomputeCommonMethodData >> addNewColumnsToMethodTable [
@@ -39,16 +22,6 @@ PEDPrecomputeCommonMethodData >> addPrecomputedData [
 			connection execute: 'UPDATE method SET selector = ?, loc = ? WHERE id = ?;' value: (ast ifNotNil: #selector) value: lines value: (currentRow atColumnNamed: 'id') ]
 ]
 
-{ #category : #accessing }
-PEDPrecomputeCommonMethodData >> connection [
-	^ connection
-]
-
-{ #category : #accessing }
-PEDPrecomputeCommonMethodData >> connection: anObject [
-	connection := anObject
-]
-
 { #category : #metrics }
 PEDPrecomputeCommonMethodData >> linesOfCodeIn: sourceCode [
 	| lines |
@@ -56,10 +29,4 @@ PEDPrecomputeCommonMethodData >> linesOfCodeIn: sourceCode [
 	sourceCode lineIndicesDo: [:start :endWithoutDelimiters :end |
 		endWithoutDelimiters > start ifTrue: [lines := lines+1] ].
 	^ lines
-]
-
-{ #category : #precomputing }
-PEDPrecomputeCommonMethodData >> precompute [
-	self addNewColumnsToMethodTable.
-	self addPrecomputedData
 ]
