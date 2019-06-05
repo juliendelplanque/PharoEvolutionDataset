@@ -36,7 +36,7 @@ PEDDatabaseCreator >> createClassTable [
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	name TEXT NOT NULL,
 	category TEXT NOT NULL,
-	super REFERENCES class(id),
+	super TEXT,
 	pharo_version_id REFERENCES pharo_version(id)
 );'.
 ]
